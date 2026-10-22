@@ -1,0 +1,50 @@
+{
+  "name": "dsh-sidebar-ingblock",
+  "version": "0.1.0",
+  "description": "A collapsible \"In Progress\" group for the DSH Web sidebar: collect sessions from the session row menu, keep the shortlist above the workspace list.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "sidebar",
+    "sessions",
+    "pinned"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg"
+  ],
+  "scripts": {
+    "test": "node tests/selfcheck.cjs",
+    "pack:check": "npm test && npm pack --dry-run"
+  },
+  "dsh": {
+    "id": "dsh-sidebar-ingblock",
+    "name": "In Progress",
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-workspace"
+      ]
+    }
+  }
+}

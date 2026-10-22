@@ -1,0 +1,8 @@
+# dsh-sidebar-ingblock bundle patch.
+#
+# One insert row mounts the package in this profile. The Host half owns the
+# state file and the fenced route; the Client half registers the session-row
+# menu entry. No other row is touched.
+- insert:
+    - id: sidebar-inprogress
+      name: 'dsh-sidebar-ingblock'
