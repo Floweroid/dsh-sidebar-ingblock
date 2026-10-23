@@ -4,6 +4,10 @@ A collapsible **"In Progress"** group for the DSH Web sidebar: collect sessions 
 
 [中文说明](README.md)
 
+![In Progress group](docs/sidebar.png)
+
+<sub>The group sits above the workspace list: a status dot per row (amber = waiting, blue = running, green = finished-unread, grey ring = idle) and the owning workspace on the right. The workspace area is folded to a single header row.</sub>
+
 ## What it does
 
 - **Add / remove** — a new row in every session's `...` menu ("Add to In Progress" / "Remove from In Progress"), placed between Pin and Rename.
