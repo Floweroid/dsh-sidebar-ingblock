@@ -34,6 +34,10 @@ dsh plugin --profile <profile> add 'git+https://<host>/<user>/dsh-sidebar-ingblo
 
 Refresh the page afterwards. Changes to `index.js` (Host half) need a DSH restart or a Plugin Manager re-apply of the row.
 
+Hovering a row reveals a trailing `×` that removes it without opening the menu:
+
+![Hover to remove](docs/sidebar-hover.png)
+
 ## Data
 
 State lives in `$DSH_HOME/plugin-data/dsh-sidebar-ingblock/state.json` (default `~/.dsh/...`), written by the Host half — never browser storage. Only session ids, their add time, and two fold flags are stored; titles and statuses are read live from the host. No network calls.

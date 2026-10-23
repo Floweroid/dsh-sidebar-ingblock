@@ -51,6 +51,10 @@ dsh plugin --profile <profile> add 'git+https://<host>/<user>/dsh-sidebar-ingblo
 3. 点标题折叠/展开，拖动行调整顺序，行尾 `×` 移出；
 4. 点「工作区」文字或右侧箭头可收起整个工作区列表。
 
+鼠标移到某一行，行尾会出现 `×`，点一下即可移出（不需要打开菜单）：
+
+![悬停移出](docs/sidebar-hover.png)
+
 ## 数据与隐私
 
 - 状态存在 `$DSH_HOME/plugin-data/dsh-sidebar-ingblock/state.json`（默认 `~/.dsh/...`），由 Host 半读写，**不经过浏览器存储**。
