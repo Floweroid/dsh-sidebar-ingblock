@@ -261,8 +261,39 @@ export function apply(ctx) {
     }
   }
 
+  /**
+   * A user-authored durable message means the Session is being worked on, so it
+   * joins the shortlist automatically. Subagent children stay out: the sidebar
+   * hides them and their "user" messages are instructions, not the user typing.
+   */
+  async function autoAdd(sessionId) {
+    const id = sessionIdOf(sessionId)
+    if (id === undefined) return
+    const current = await loadState()
+    if (current.entries.some((entry) => entry.sessionId === id)) return
+    const live = ctx.get('sessions')?.get?.(id)
+    if (live !== undefined && live !== null && live.header?.origin === 'subagent') return
+    const entries = [{ sessionId: id, addedAt: Date.now() }, ...current.entries].slice(0, MAX_ENTRIES)
+    await writeState({
+      version: STATE_VERSION,
+      updatedAt: Date.now(),
+      collapsed: current.collapsed === true,
+      workspaceCollapsed: current.workspaceCollapsed === true,
+      entries,
+    })
+  }
+
   ctx.effect(
     () => ctx.webServer.register({ kind: 'prefix', path: ROUTE_PREFIX, handler }),
     'dsh-sidebar-ingblock: state route',
+  )
+
+  ctx.effect(
+    () => ctx.on('api-session/activity', (sessionId) => {
+      void enqueue(() => autoAdd(sessionId)).catch((error) => {
+        ctx.logger?.warn?.(`dsh-sidebar-ingblock: auto-add failed: ${String(error)}`)
+      })
+    }),
+    'dsh-sidebar-ingblock: auto-add on user message',
   )
 }

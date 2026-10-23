@@ -11,6 +11,7 @@ A collapsible **"In Progress"** group for the DSH Web sidebar: collect sessions 
 ## What it does
 
 - **Add / remove** — a new row in every session's `...` menu ("Add to In Progress" / "Remove from In Progress"), placed between Pin and Rename.
+- **Joins on the first message** — sending a message in any session adds it automatically (subagent sessions excluded), so the menu is only needed for sessions you have not written to yet.
 - **Independent group** — the group sits above the `工作区` (workspaces) header and does not scroll with the session list; searching or folding workspaces leaves it alone.
 - **Collapsible** — click the group title or its chevron; the count stays visible and the state survives restarts.
 - **Workspace area collapse** — a chevron next to the `工作区` label folds the whole workspace list (header stays as the way back); clicking search auto-expands it.

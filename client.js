@@ -322,6 +322,8 @@ window.__ModuleLoader__.load({
     let inflightLoad = null
     /** Toggles run in click order; the Host serializes its own read-modify-write. */
     let toggleQueue = Promise.resolve()
+    /** Writes in flight; the periodic refresh stays out of their way. */
+    let pendingWrites = 0
 
     const listeners = new Set()
 
@@ -404,8 +406,35 @@ window.__ModuleLoader__.load({
       return inflightLoad
     }
 
+    /**
+     * Re-read the Host state. The Host adds entries on its own (a user message
+     * auto-joins the list), so the page has to observe changes it did not make;
+     * the poll is skipped while a local write is in flight to avoid fighting it.
+     */
+    function refresh() {
+      if (pendingWrites > 0) return Promise.resolve()
+      return fetch(endpoint('state'), {
+        credentials: 'same-origin',
+        headers: { accept: 'application/json' },
+      })
+        .then((response) => (response.ok
+          ? response.json()
+          : Promise.reject(new Error(`HTTP ${String(response.status)}`))))
+        .then((payload) => {
+          const next = stateOf(payload)
+          const sameEntries = next.entries.length === current.entries.length
+            && next.entries.every((entry, index) => entry.sessionId === current.entries[index].sessionId)
+          if (sameEntries
+            && next.collapsed === current.collapsed
+            && next.workspaceCollapsed === current.workspaceCollapsed) return
+          applyPayload(payload)
+        })
+        .catch(() => {})
+    }
+
     /** Ask the Host to flip one id; the response is the authoritative list. */
     function requestToggle(sessionId, before) {
+      pendingWrites += 1
       return fetch(endpoint('toggle'), {
         method: 'POST',
         credentials: 'same-origin',
@@ -419,6 +448,9 @@ window.__ModuleLoader__.load({
         .catch((error) => {
           console.error('dsh-sidebar-ingblock: toggle failed', error)
           publish({ ...current, entries: before, error: 'save' })
+        })
+        .finally(() => {
+          pendingWrites = Math.max(0, pendingWrites - 1)
         })
     }
 
@@ -439,6 +471,7 @@ window.__ModuleLoader__.load({
      * settled — never while it is still loading, which would wipe the list.
      */
     function replaceEntries(entries, before) {
+      pendingWrites += 1
       publish({ ...current, entries, error: null })
       return fetch(endpoint('state'), {
         method: 'POST',
@@ -453,6 +486,9 @@ window.__ModuleLoader__.load({
         .catch((error) => {
           console.error('dsh-sidebar-ingblock: write failed', error)
           publish({ ...current, entries: before, error: 'save' })
+        })
+        .finally(() => {
+          pendingWrites = Math.max(0, pendingWrites - 1)
         })
     }
 
@@ -494,6 +530,7 @@ window.__ModuleLoader__.load({
         return Promise.resolve()
       }
       publish({ ...current, ...next, error: null })
+      pendingWrites += 1
       return fetch(endpoint('ui'), {
         method: 'POST',
         credentials: 'same-origin',
@@ -507,6 +544,9 @@ window.__ModuleLoader__.load({
         .catch((error) => {
           console.error('dsh-sidebar-ingblock: view state save failed', error)
           publish({ ...current, ...before, error: 'save' })
+        })
+        .finally(() => {
+          pendingWrites = Math.max(0, pendingWrites - 1)
         })
     }
 
@@ -883,6 +923,23 @@ window.__ModuleLoader__.load({
         if (next.length === before.length) return
         void replaceEntries(next, before)
       }, [orderKey, listReady])
+
+      // The Host auto-joins sessions on a user message, so the page has to pick
+      // up changes it did not make itself. Only while visible, and never while
+      // a local write is in flight (see `refresh`).
+      React.useEffect(() => {
+        const timer = window.setInterval(() => {
+          if (document.visibilityState === 'visible') void refresh()
+        }, 5000)
+        const onVisible = () => {
+          if (document.visibilityState === 'visible') void refresh()
+        }
+        document.addEventListener('visibilitychange', onVisible)
+        return () => {
+          window.clearInterval(timer)
+          document.removeEventListener('visibilitychange', onVisible)
+        }
+      }, [])
 
       const rows = snapshot.entries.map((entry) => {
         const summary = byId[entry.sessionId]
