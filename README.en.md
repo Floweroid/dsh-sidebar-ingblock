@@ -4,9 +4,9 @@ A collapsible **"In Progress"** group for the DSH Web sidebar: collect sessions 
 
 [中文说明](README.md)
 
-![In Progress group](docs/sidebar.png)
+![In Progress group](docs/sidebar-hover.png)
 
-<sub>The group sits above the workspace list: a status dot per row (amber = waiting, blue = running, green = finished-unread, grey ring = idle) and the owning workspace on the right. The workspace area is folded to a single header row.</sub>
+<sub>The group sits above the workspace list: a status dot per row (amber = waiting, blue = running, green = finished-unread, grey ring = idle) and the owning workspace on the right. Hovering a row reveals a trailing `×` that removes it; the workspace area is folded to a single header row.</sub>
 
 ## What it does
 
@@ -34,9 +34,7 @@ dsh plugin --profile <profile> add 'git+https://<host>/<user>/dsh-sidebar-ingblo
 
 Refresh the page afterwards. Changes to `index.js` (Host half) need a DSH restart or a Plugin Manager re-apply of the row.
 
-Hovering a row reveals a trailing `×` that removes it without opening the menu:
-
-![Hover to remove](docs/sidebar-hover.png)
+Hovering a row reveals a trailing `×` that removes it without opening the menu.
 
 ## Data
 
