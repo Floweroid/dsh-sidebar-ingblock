@@ -50,6 +50,7 @@ dsh plugin --profile <profile> add 'git+https://<host>/<user>/dsh-sidebar-ingblo
 ## 数据与隐私
 
 - 状态存在 `$DSH_HOME/plugin-data/dsh-sidebar-ingblock/state.json`（默认 `~/.dsh/...`），由 Host 半读写，**不经过浏览器存储**。
+- 从旧包名 `dsh-sidebar-inprogress` 升级时，首次加载会把旧目录里的 `state.json` 搬到新目录，**列表不会丢**。
 - 只保存 `sessionId + addedAt` 和两个折叠开关；标题、工作区名、运行状态都是实时从宿主读取的，不落盘。
 - 不发起任何外网请求；Host 路由只接受同源、通过 `connection.requestRejection` 的请求。
 - 删除该文件即可清空；损坏时会被改名成 `state.json.bad-<时间戳>` 并以空列表启动。
